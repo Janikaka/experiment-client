@@ -3,19 +3,6 @@
 import click
 import requests
 import random
-import string
-
-def randomString():
-	upper_case = 1
-	name_upper_chars = string.ascii_uppercase
-	upper_name = ''.join(random.choice(name_upper_chars) for y in range(upper_case))
-	name_size = 5
-	name_chars = string.ascii_lowercase
-	name = ''.join(random.choice(name_chars) for x in range(name_size))
-	digits_size = 2
-	digits_chars = string.digits
-	digits = ''.join(random.choice(digits_chars) for z in range(digits_size))
-	return upper_name + name + digits
 
 
 def getConf(username, url):
@@ -25,22 +12,23 @@ def getConf(username, url):
 	r = requests.get(confURL, headers=confHeaders, json=confPayload)
 	return r.json()['configurations']
 
-def postEvent(username, url):
+def postEvent(username, value, url):
 	eventsURL = url + 'events'
 	eventsHearders = {'username':username}
+	#if value is None:
+	#	value = 
 	randValue = random.randint(0, 10)
 	eventsPayload = {'value': randValue}
 	requests.post(eventsURL, headers=eventsHearders, json=eventsPayload)
 
-#click.echo("Conf: %s" %r.json()['configurations'])	
 
 @click.command()
-@click.option('--username')
+@click.option('--username', multiple=True)
 @click.option('--dataitems')
 @click.option('--users')
 @click.option('--url')
 def login(username, dataitems, users, url):
-	
+	print(username)
 	if username != None:
 		conf = getConf(username, url)
 		print("Configurations: %s" % conf)
@@ -64,7 +52,4 @@ def login(username, dataitems, users, url):
 
 if __name__ == '__main__':
 	login()
-
-# $VENV/bin/python user_cli.py --username=jaska --dataitems=100 --url=http://localhost:6543/
-# $VENV/bin/python user_cli.py --users=20 --dataitems=10 --url=http://localhost:6543/
 
