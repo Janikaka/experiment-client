@@ -16,9 +16,9 @@ def randomString():
 	return upper_name + name + digits
 
 
-def getConf(username, password, url):
+def getConf(username, url):
 	confURL = url + 'configurations'
-	confHeaders = {'username':username, 'password':password}
+	confHeaders = {'username':username}
 	confPayload = {}
 	r = requests.get(confURL, headers=confHeaders, json=confPayload)
 	return r.json()['configurations']
@@ -34,14 +34,13 @@ def postEvent(username, url):
 
 @click.command()
 @click.option('--username')
-@click.option('--password')
 @click.option('--dataitems')
 @click.option('--users')
 @click.option('--url')
-def login(username, password, dataitems, users, url):
+def login(username, dataitems, users, url):
 	
-	if username != None and password != None:
-		conf = getConf(username, password, url)
+	if username != None:
+		conf = getConf(username, url)
 		print("Configurations: %s" % conf)
 		if dataitems != None:
 			for i in range(int(dataitems)):
@@ -49,8 +48,7 @@ def login(username, password, dataitems, users, url):
 	elif users != None:
 		for i in range(int(users)):
 			username = randomString()
-			password = randomString()
-			conf = getConf(username, password, url)
+			conf = getConf(username, url)
 			print("Configurations: %s" % conf)
 			if dataitems != None:
 				for i in range(int(dataitems)):
@@ -65,6 +63,6 @@ def login(username, password, dataitems, users, url):
 if __name__ == '__main__':
 	login()
 
-# $VENV/bin/python client.py --username=jaska --password=jokunen --dataitems=100 --url=http://localhost:6543/
-# $VENV/bin/python client.py --users=20 --dataitems=10 --url=http://localhost:6543/
+# $VENV/bin/python user_cli.py --username=jaska --dataitems=100 --url=http://localhost:6543/
+# $VENV/bin/python user_cli.py --users=20 --dataitems=10 --url=http://localhost:6543/
 
