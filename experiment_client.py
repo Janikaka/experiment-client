@@ -15,9 +15,9 @@ import getpass
 @click.option('--dataitems', multiple=True, type=click.STRING)
 @click.option('--random_dataitems', type=click.INT)
 @click.option('--random_min', default=0, type=click.INT)
-@click.option('--random_max', default=100, type=click.INT)
+@click.option('--random-max', default=100, type=click.INT)
 @click.option('--key', type=click.STRING)
-def cli(url, username, dataitem, dataitems, random_dataitems, random_min, random_max, key):
+def cli(url, username, dataitem, dataitems, random_dataitems, random_min, random-max, key):
 	getConf(username, url)
 	if dataitem is not None:
 		for item in dataitem:
@@ -40,7 +40,7 @@ def cli(url, username, dataitem, dataitems, random_dataitems, random_min, random
 			click.echo("ERRORdataitem")
 			return 2
 		for i in range(random_dataitems):
-			postEvent(username, key, random.randint(random_min, random_max), url)
+			postEvent(username, key, random.randint(random_min, random-max), url)
 	return 0
 
 
