@@ -14,33 +14,46 @@ import getpass
 @click.option('--dataitem', multiple=True)
 @click.option('--dataitems', multiple=True, type=click.STRING)
 @click.option('--random_dataitems', type=click.INT)
-@click.option('--random_min', default=0, type=click.INT)
-@click.option('--random-max', default=100, type=click.INT)
+@click.option('--random_min', type=click.INT)
+@click.option('--random_max', type=click.INT)
 @click.option('--key', type=click.STRING)
-def cli(url, username, dataitem, dataitems, random_dataitems, random_min, random-max, key):
-	getConf(username, url)
+@click.option('--verbose', default=False, type=click.STRING)
+def cli(url, username, dataitem, dataitems, random_dataitems, random_min, random_max, key, verbose):
+	if dataitem or dataitems or random_dataitems or random_min or random_max or key:
+		default = False
+	else:
+		default = True
+	if random_min is None:
+		random_min = 0
+	elif random_dataitems is None:
+		click.echo('ERROR: invalid random_dataitems')
+	if random_max is None:
+		random_max = 100
+	elif random_dataitems is None:
+		click.echo('ERROR: invalid random_dataitems')
+	conf = getConf(username, url)
+	if verbose == 'True' or default:
+		click.echo('Configurations: %s' % conf)
 	if dataitem is not None:
 		for item in dataitem:
 			arr = item.split(":")
 			key = str(arr[0])
 			value = int(arr[1])
-			if type(key) is not str or type(value) is not int:
-				click.echo("ERRORkey")
-				click.echo(type(key))
-				click.echo(value)
-				return 1
-			postEvent(username, key, value, url)
+			postEvent(username, key, value, url, verbose)
 	if dataitems is not None:
 		for filename in dataitems:
+			if type(filename) is not str:
+				click.echo("ERROR: invalid filename")
+				return 1
 			dataitemsFromFile = readFile(filename)
 			for dataitem in dataitemsFromFile:
-				postEvent(username, dataitem['key'], dataitem['value'], url)
+				postEvent(username, dataitem['key'], dataitem['value'], url, verbose)
 	if random_dataitems is not None:
 		if key is None:
-			click.echo("ERRORdataitem")
-			return 2
+			click.echo("ERROR: invalid key")
+			return 1
 		for i in range(random_dataitems):
-			postEvent(username, key, random.randint(random_min, random-max), url)
+			postEvent(username, key, random.randint(random_min, random_max), url, verbose)
 	return 0
 
 
@@ -49,13 +62,21 @@ def getConf(username, url):
 	confHeaders = {'username':username}
 	confPayload = {}
 	r = requests.get(confURL, headers=confHeaders, json=confPayload)
-	click.echo(r.json()['configurations'])
+	if r.status_code != 200:
+		click.echo('ERROR: status %d' % r.status_code)
+		return 1
+	return r.json()['configurations']
 
-def postEvent(username, key, value, url):
+def postEvent(username, key, value, url, verbose):
 	eventsURL = url + 'events'
 	eventsHearders = {'username':username}
 	eventsPayload = {'value': value, 'key':key}
-	requests.post(eventsURL, headers=eventsHearders, json=eventsPayload)
+	r = requests.post(eventsURL, headers=eventsHearders, json=eventsPayload)
+	if r.status_code != 200:
+		click.echo('ERROR: status %d' % r.status_code)
+		return 1
+	elif verbose == 'True':
+		click.echo('Dataitem (%s:%d) sent' % (key, value))
 
 def readFile(filename):
 	dataitems = []
@@ -64,9 +85,9 @@ def readFile(filename):
 		arr = line.split(":")
 		key = arr[0]
 		value = int(arr[1])
-		if type(key) is not str or type(value) is not int:
-			click.echo("ERRORfile")
-			return 3
+		if type(key) is not str:
+			click.echo("ERROR: invalid file")
+			return 1
 		dataitems.append({'key':key, 'value':value})
 	return dataitems
 
