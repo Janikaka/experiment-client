@@ -17,7 +17,7 @@ import getpass
 @click.option('--random_min', type=click.INT)
 @click.option('--random_max', type=click.INT)
 @click.option('--key', type=click.STRING)
-@click.option('--verbose', default=False, type=click.STRING)
+@click.option('--verbose', is_flag=True)
 def cli(url, username, dataitem, dataitems, random_dataitems, random_min, random_max, key, verbose):
 	if dataitem or dataitems or random_dataitems or random_min or random_max or key:
 		default = False
@@ -32,7 +32,7 @@ def cli(url, username, dataitem, dataitems, random_dataitems, random_min, random
 	elif random_dataitems is None:
 		click.echo('ERROR: invalid random_dataitems')
 	conf = getConf(username, url)
-	if verbose == 'True' or default:
+	if verbose or default:
 		click.echo('Configurations: %s' % conf)
 	if dataitem is not None:
 		for item in dataitem:
@@ -75,7 +75,7 @@ def postEvent(username, key, value, url, verbose):
 	if r.status_code != 200:
 		click.echo('ERROR: status %d' % r.status_code)
 		return 1
-	elif verbose == 'True':
+	elif verbose:
 		click.echo('Dataitem (%s:%d) sent' % (key, value))
 
 def readFile(filename):
