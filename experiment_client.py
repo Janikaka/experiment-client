@@ -65,7 +65,7 @@ def getConf(username, url):
 	if r.status_code != 200:
 		click.echo('ERROR: status %d' % r.status_code)
 		return 1
-	return r.json()['configurations']
+	return r.json()['data']
 
 def postEvent(username, key, value, url, verbose):
 	eventsURL = url + 'events'
