@@ -18,7 +18,8 @@ import getpass
 @click.option('--random_max', type=click.INT)
 @click.option('--key', type=click.STRING)
 @click.option('--verbose', is_flag=True)
-def cli(url, username, dataitem, dataitems, random_dataitems, random_min, random_max, key, verbose):
+@click.option('--conf', is_flag=True)
+def cli(url, username, dataitem, dataitems, random_dataitems, random_min, random_max, key, verbose, conf):
 	if dataitem or dataitems or random_dataitems or random_min or random_max or key:
 		default = False
 	else:
@@ -31,9 +32,11 @@ def cli(url, username, dataitem, dataitems, random_dataitems, random_min, random
 		random_max = 100
 	elif random_dataitems is None:
 		click.echo('ERROR: invalid random_dataitems')
-	conf = getConf(username, url)
+	confs = getConf(username, url)
+	if conf:
+		useConf(confs)
 	if verbose or default:
-		click.echo('Configurations: %s' % conf)
+		click.echo('Configurations: %s' % confs)
 	if dataitem is not None:
 		for item in dataitem:
 			arr = item.split(":")
@@ -90,6 +93,19 @@ def readFile(filename):
 			return 1
 		dataitems.append({'key':key, 'value':value})
 	return dataitems
+
+def useConf(confs):
+	for conf in confs:
+		key = conf['key']
+		value = conf['value']
+		if type(value) is int:
+			click.echo("Key: %s, value: %d => %d" % (key, value, value*value))
+		elif type(value) is float:
+			click.echo("Key: %s, value: %f => %f" % (key, value, value*2))
+		elif type(value) is str:
+			click.echo("Key: %s, value: %s => %s" % (key, value, value[::-1]))
+		elif type(value) is bool:
+			click.echo("Key: %s, value: %r => %r" % (key, value, not value))
 
 if __name__ == '__main__':
 	cli()
