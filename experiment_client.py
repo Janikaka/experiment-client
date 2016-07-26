@@ -4,6 +4,7 @@ import click
 import requests
 import random
 import getpass
+import datetime
 
 #http://click.pocoo.org/5/parameters/#implementing-custom-types 
 
@@ -73,7 +74,26 @@ def getConf(username, url):
 def postEvent(username, key, value, url, verbose):
 	eventsURL = url + 'events'
 	eventsHearders = {'username':username}
-	eventsPayload = {'value': value, 'key':key}
+	dt = datetime.datetime.now()
+	dt1 = datetime.datetime(
+                dt.year,
+                dt.month, 
+                dt.day,
+                dt.hour,
+                dt.minute,
+                dt.second)
+	dt2 = datetime.datetime(
+                dt.year, 
+                dt.month, 
+                dt.day,
+                dt.hour,
+                dt.minute,
+                dt.second+1)
+	eventsPayload = {
+		'value': value, 
+		'key':key, 
+		'startDatetime': str(dt1),
+		'endDatetime': str(dt2)}
 	r = requests.post(eventsURL, headers=eventsHearders, json=eventsPayload)
 	if r.status_code != 200:
 		click.echo('ERROR: status %d' % r.status_code)
