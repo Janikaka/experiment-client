@@ -64,11 +64,12 @@ def cli(url, username, dataitem, dataitems, random_dataitems, random_min, random
 def getConf(username, url):
 	confURL = url + 'configurations'
 	confHeaders = {'username':username}
-	confPayload = {}
-	r = requests.get(confURL, headers=confHeaders, json=confPayload)
+	r = requests.get(confURL, headers=confHeaders)
+	click.echo("confResponse: %s" % r)
 	if r.status_code != 200:
 		click.echo('ERROR: status %d' % r.status_code)
 		return 1
+	click.echo(r.json())
 	return r.json()['data']
 
 def postEvent(username, key, value, url, verbose):
